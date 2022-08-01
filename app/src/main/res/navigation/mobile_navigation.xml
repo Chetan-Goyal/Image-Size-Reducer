@@ -3,23 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_home">
+    app:startDestination="@+id/nav_size_reducer">
 
     <fragment
-        android:id="@+id/nav_home"
-        android:name="com.docimagetools.app.ui.home.HomeFragment"
-        android:label="@string/menu_home"
-        tools:layout="@layout/fragment_home" />
+        android:id="@+id/nav_size_reducer"
+        android:name="com.docimagetools.app.ui.image_size_reducer.ImageSizeReducerFragment"
+        android:label="@string/menu_size_reducer"
+        tools:layout="@layout/fragment_image_size_reducer" />
 
     <fragment
-        android:id="@+id/nav_gallery"
-        android:name="com.docimagetools.app.ui.gallery.GalleryFragment"
-        android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
+        android:id="@+id/nav_resolution_changer"
+        android:name="com.docimagetools.app.ui.image_resolution_changer.ImageResolutionChangerFragment"
+        android:label="@string/menu_resolution_changer"
+        tools:layout="@layout/fragment_image_resolution_changer" />
 
     <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="com.docimagetools.app.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+        android:id="@+id/nav_about"
+        android:name="com.docimagetools.app.ui.about.AboutFragment"
+        android:label="@string/menu_about"
+        tools:layout="@layout/fragment_about" />
 </navigation>

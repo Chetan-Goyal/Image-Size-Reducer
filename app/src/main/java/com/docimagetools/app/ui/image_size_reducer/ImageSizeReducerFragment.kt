@@ -1,27 +1,24 @@
-package com.docimagetools.app.ui.home
+package com.docimagetools.app.ui.image_size_reducer
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toFile
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.docimagetools.app.databinding.FragmentHomeBinding
+import com.docimagetools.app.databinding.FragmentImageSizeReducerBinding
 import kotlinx.coroutines.*
 import java.io.File
 
 
-class HomeFragment : Fragment() {
+class ImageSizeReducerFragment : Fragment() {
 
-    private var _binding: FragmentHomeBinding? = null
+    private var _binding: FragmentImageSizeReducerBinding? = null
     private val pickImage = 100
 
     val job = Job()
@@ -36,12 +33,12 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        _binding = FragmentImageSizeReducerBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
         val button: Button = binding.selectImage
         button.setOnClickListener {
-//            val gallery = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
+//            val image_resolution_changer = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
             val pickIntent = Intent()
             pickIntent.type = "image/*"
             pickIntent.action = Intent.ACTION_GET_CONTENT
@@ -80,9 +77,9 @@ class HomeFragment : Fragment() {
 //            val yourFile =
 //                File(dir, data.path)
 //            Log.i("", "${yourFile.absoluteFile}")
-            val homeViewModel =
-                ViewModelProvider(this).get(HomeViewModel::class.java)
-            homeViewModel.compress(binding.root.context, File(data.path))
+            val imageSizeReducerViewModel =
+                ViewModelProvider(this).get(ImageSizeReducerViewModel::class.java)
+            imageSizeReducerViewModel.compress(binding.root.context, File(data.path))
         }
     }
 

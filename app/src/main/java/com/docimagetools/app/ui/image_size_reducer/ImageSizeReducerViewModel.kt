@@ -20,6 +20,6 @@ class ImageSizeReducerViewModel : ViewModel() {
             size(1024) // 1 KB
         }
         return compressedImageFile
-//        Log.i("","After Compression")
+
     }
 }

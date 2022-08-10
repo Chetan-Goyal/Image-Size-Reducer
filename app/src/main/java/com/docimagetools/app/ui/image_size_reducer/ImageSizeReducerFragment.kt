@@ -145,6 +145,7 @@ class ImageSizeReducerFragment : Fragment() {
             ViewModelProvider(this).get(ImageSizeReducerViewModel::class.java)
 
         try {
+            binding.compressedImage.setImageURI(null)
             val compressedImage = imageSizeReducerViewModel.compress(binding.root.context, imageSizeReducerViewModel.originalImage!!)
             binding.compressedImage.setImageURI(compressedImage.toUri())
         } catch (exception: RuntimeException) {

@@ -47,26 +47,45 @@ class ImageSizeReducerViewModel : ViewModel() {
             val compressedImageFile = Compressor.compress(context, file) {
 
                 if(getOriginalSize.toInt() > getTargetSize) {
-                    if (getOriginalSize/ getTargetSize >= 2) {
-                        resolution(360, (360.0/(imageWidth!!.toFloat()/ imageHeight!!.toFloat())).toInt())
+                    if (getTargetSize < 20*1024) {
+                        resolution(50, (50.0/(imageWidth!!.toFloat()/ imageHeight!!.toFloat())).toInt())
+                    } else if(getTargetSize < 30*1024) {
+                        resolution(100, (100.0/(imageWidth!!.toFloat()/ imageHeight!!.toFloat())).toInt())
+                    } else if(getTargetSize < 35*1024) {
+                        resolution(150, (150.0/(imageWidth!!.toFloat()/ imageHeight!!.toFloat())).toInt())
+                    } else if(getTargetSize < 40*1024) {
+                        resolution(200, (200.0/(imageWidth!!.toFloat()/ imageHeight!!.toFloat())).toInt())
+                    } else if(getTargetSize < 60*1024) {
+                        resolution(250, (250.0/(imageWidth!!.toFloat()/ imageHeight!!.toFloat())).toInt())
+                    } else if(getTargetSize < 70*1024) {
+                        resolution(300, (300.0/(imageWidth!!.toFloat()/ imageHeight!!.toFloat())).toInt())
+                    } else if (getTargetSize <= 100*1024) {
+                        resolution(400, (400.0/(imageWidth!!.toFloat()/ imageHeight!!.toFloat())).toInt())
+                    } else if (getOriginalSize/ getTargetSize >= 2) {
+                        resolution(500, (500.0/(imageWidth!!.toFloat()/ imageHeight!!.toFloat())).toInt())
                     }
 
-                    quality(80)
+                    quality(90)
                     format(Bitmap.CompressFormat.JPEG)
-                    size(getTargetSize.toLong(), maxIteration = 10)
+                    size(getTargetSize.toLong(), maxIteration = 30)
                  }
             }
             Log.i("Compressor", "Original   File Size: ${file.length()}")
             Log.i("Compressor", "Compressed File Size: ${compressedImageFile.length()}")
+            Log.i("Compressor", "Original   File Resolution: ${getImageSize(file.toURI()).joinToString()}")
+            Log.i("Compressor", "Compressed File Resolution: ${getImageSize(compressedImageFile.toURI()).joinToString()}")
+
+
             return compressedImageFile
         }
     }
 
-    private fun getImageSize(uri: URI) {
+    private fun getImageSize(uri: URI) : Array<Int?> {
         val options = BitmapFactory.Options()
         options.inJustDecodeBounds = true
         BitmapFactory.decodeFile(File(uri.getPath()).getAbsolutePath(), options)
         imageHeight = options.outHeight
         imageWidth = options.outWidth
+        return arrayOf<Int?>(imageWidth, imageHeight)
     }
 }

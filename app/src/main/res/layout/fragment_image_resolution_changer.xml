@@ -1,22 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.image_resolution_changer.ImageResolutionChangerFragment">
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp" >
 
-    <TextView
-        android:id="@+id/text_gallery"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/selectedImageView"
+            android:layout_width="match_parent"
+            android:layout_height="200dp" />
+
+        <Button
+            android:id="@+id/selectImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Select Image"
+            android:textColor="@color/white" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Output Width" />
+
+            <EditText
+                android:id="@+id/selectedWidth"
+                android:layout_width="227dp"
+                android:layout_height="50dp"
+                android:importantForAutofill="no"
+                android:minHeight="48dp"
+                android:hint="Width"
+                android:inputType="number"
+                android:maxLength="3"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/selectHeightHint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Output Height" />
+
+            <EditText
+                android:id="@+id/selectedHeight"
+                android:layout_width="227dp"
+                android:layout_height="50dp"
+                android:importantForAutofill="no"
+                android:minHeight="48dp"
+                android:hint="Height"
+                android:inputType="number"
+                android:maxLength="3"/>
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/processImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Resize Image"
+            android:textColor="@color/white" />
+
+        <ImageView
+            android:id="@+id/resizedImage"
+            android:layout_width="match_parent"
+            android:layout_height="200dp" />
+
+
+    </LinearLayout>
+
+
+</RelativeLayout>

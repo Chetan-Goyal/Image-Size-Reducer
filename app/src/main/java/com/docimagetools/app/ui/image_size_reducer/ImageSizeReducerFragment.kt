@@ -151,8 +151,6 @@ class ImageSizeReducerFragment : Fragment() {
         } catch (exception: RuntimeException) {
             Toast.makeText(this.context, exception.message, Toast.LENGTH_SHORT).show()
         }
-
-
     }
 
 

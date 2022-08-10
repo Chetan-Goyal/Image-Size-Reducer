@@ -38,6 +38,9 @@ class ImageSizeReducerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentImageSizeReducerBinding.inflate(inflater, container, false)
+        val imageSizeReducerViewModel =
+            ViewModelProvider(this).get(ImageSizeReducerViewModel::class.java)
+
         val root: View = binding.root
 
         val button: Button = binding.selectImage
@@ -62,9 +65,11 @@ class ImageSizeReducerFragment : Fragment() {
         // access the spinner
         val spinner = root.findViewById<Spinner>(R.id.sizeDropDown)
         spinner.setSelection(0, true);
+        spinner.setPrompt("KB")
+
         if (spinner != null) {
             val adapter = ArrayAdapter<String>(
-                root.context,
+                this.requireContext(),
                 android.R.layout.simple_spinner_item, imageSizeUnits
             )
             spinner.adapter = adapter
@@ -72,14 +77,10 @@ class ImageSizeReducerFragment : Fragment() {
             spinner.onItemSelectedListener = object :
                 AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
-                    parent: AdapterView<*>,
+                    parent: AdapterView<*>?,
                     view: View, position: Int, id: Long
                 ) {
-                    Toast.makeText(
-                        root.context,
-                        id.toString() + " " +
-                                "" + imageSizeUnits[position], Toast.LENGTH_SHORT
-                    ).show()
+                    imageSizeReducerViewModel.selectedUnit = position;
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>) {
@@ -89,23 +90,24 @@ class ImageSizeReducerFragment : Fragment() {
         }
 
         root.findViewById<EditText>(R.id.editText)?.addTextChangedListener(
-            afterTextChanged = {
-
-            },
             onTextChanged = { s, start, before, count ->
-//                Toast.makeText(root.context, "On text change: " + s, Toast.LENGTH_SHORT).show();
-            },
-            beforeTextChanged = { s, start, before, count ->
-//                Toast.makeText(root.context, "before text change:" + s, Toast.LENGTH_SHORT)
-//                    .show();
+                imageSizeReducerViewModel.selectedSize = s.toString()
             }
         )
 
         root.findViewById<Button>(R.id.processImage)?.setOnClickListener {
-            uiScope.launch(Dispatchers.IO) {
-                //asyncOperation
-                withContext(Dispatchers.Main) {
-                    compress()
+            if (imageSizeReducerViewModel.originalImage == null ) {
+                Toast.makeText(root.context, "Please select your Image first!", Toast.LENGTH_SHORT).show()
+            } else if(imageSizeReducerViewModel.selectedSize == null) {
+                 Toast.makeText(root.context, "Please select size for output image!", Toast.LENGTH_SHORT).show()
+            } else if(imageSizeReducerViewModel.selectedUnit == null) {
+                Toast.makeText(root.context, "Please select unit for output file!", Toast.LENGTH_SHORT).show()
+            } else {
+                uiScope.launch(Dispatchers.IO) {
+                    //asyncOperation
+                    withContext(Dispatchers.Main) {
+                        compress()
+                    }
                 }
             }
         }
@@ -141,12 +143,15 @@ class ImageSizeReducerFragment : Fragment() {
     private suspend fun compress() {
         val imageSizeReducerViewModel =
             ViewModelProvider(this).get(ImageSizeReducerViewModel::class.java)
-        if (imageSizeReducerViewModel.originalImage != null) {
+
+        try {
             val compressedImage = imageSizeReducerViewModel.compress(binding.root.context, imageSizeReducerViewModel.originalImage!!)
             binding.compressedImage.setImageURI(compressedImage.toUri())
-        } else{
-            Toast.makeText(this.context, "Please select your Image first!", Toast.LENGTH_SHORT)
+        } catch (exception: RuntimeException) {
+            Toast.makeText(this.context, exception.message, Toast.LENGTH_SHORT).show()
         }
+
+
     }
 
 

@@ -8,10 +8,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.*
 import androidx.core.net.toUri
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.docimagetools.app.R
 import com.docimagetools.app.databinding.FragmentImageSizeReducerBinding
 import kotlinx.coroutines.*
 import java.io.File
@@ -55,6 +57,59 @@ class ImageSizeReducerFragment : Fragment() {
             startActivityForResult(chooserIntent, pickImage)
         }
 
+        val imageSizeUnits = resources.getStringArray(R.array.imageSizeUnits)
+
+        // access the spinner
+        val spinner = root.findViewById<Spinner>(R.id.sizeDropDown)
+        spinner.setSelection(0, true);
+        if (spinner != null) {
+            val adapter = ArrayAdapter<String>(
+                root.context,
+                android.R.layout.simple_spinner_item, imageSizeUnits
+            )
+            spinner.adapter = adapter
+
+            spinner.onItemSelectedListener = object :
+                AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>,
+                    view: View, position: Int, id: Long
+                ) {
+                    Toast.makeText(
+                        root.context,
+                        id.toString() + " " +
+                                "" + imageSizeUnits[position], Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>) {
+                    // write code to perform some action
+                }
+            }
+        }
+
+        root.findViewById<EditText>(R.id.editText)?.addTextChangedListener(
+            afterTextChanged = {
+
+            },
+            onTextChanged = { s, start, before, count ->
+//                Toast.makeText(root.context, "On text change: " + s, Toast.LENGTH_SHORT).show();
+            },
+            beforeTextChanged = { s, start, before, count ->
+//                Toast.makeText(root.context, "before text change:" + s, Toast.LENGTH_SHORT)
+//                    .show();
+            }
+        )
+
+        root.findViewById<Button>(R.id.processImage)?.setOnClickListener {
+            uiScope.launch(Dispatchers.IO) {
+                //asyncOperation
+                withContext(Dispatchers.Main) {
+                    compress()
+                }
+            }
+        }
+
         return root
     }
 
@@ -72,12 +127,10 @@ class ImageSizeReducerFragment : Fragment() {
                 if (actualImage == null) {
                     Log.i("", "Image is null")
                 } else {
-                    uiScope.launch(Dispatchers.IO) {
-                        //asyncOperation
-                        withContext(Dispatchers.Main) {
-                            compress(actualImage)
-                        }
-                    }
+                    val imageSizeReducerViewModel =
+                        ViewModelProvider(this).get(ImageSizeReducerViewModel::class.java)
+                    imageSizeReducerViewModel.originalImage = actualImage
+                    binding.selectedImageView.setImageURI(actualImage.toUri())
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -85,12 +138,14 @@ class ImageSizeReducerFragment : Fragment() {
         }
     }
 
-    private suspend fun compress(data: File?) {
-        if (data != null) {
-            val imageSizeReducerViewModel =
-                ViewModelProvider(this).get(ImageSizeReducerViewModel::class.java)
-            val compressedImage = imageSizeReducerViewModel.compress(binding.root.context, data)
-            binding.selectedImageView.setImageURI(compressedImage.toUri())
+    private suspend fun compress() {
+        val imageSizeReducerViewModel =
+            ViewModelProvider(this).get(ImageSizeReducerViewModel::class.java)
+        if (imageSizeReducerViewModel.originalImage != null) {
+            val compressedImage = imageSizeReducerViewModel.compress(binding.root.context, imageSizeReducerViewModel.originalImage!!)
+            binding.compressedImage.setImageURI(compressedImage.toUri())
+        } else{
+            Toast.makeText(this.context, "Please select your Image first!", Toast.LENGTH_SHORT)
         }
     }
 

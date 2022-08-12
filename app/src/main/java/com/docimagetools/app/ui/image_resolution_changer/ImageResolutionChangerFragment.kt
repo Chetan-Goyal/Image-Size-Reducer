@@ -22,6 +22,7 @@ import com.docimagetools.app.ui.image_size_reducer.ImageSizeReducerViewModel
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.IOException
+import java.lang.Exception
 
 class ImageResolutionChangerFragment : Fragment() {
 
@@ -34,6 +35,8 @@ class ImageResolutionChangerFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+
+    private var isEditing = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,16 +66,81 @@ class ImageResolutionChangerFragment : Fragment() {
             startActivityForResult(chooserIntent, pickImage)
         }
 
-        root.findViewById<EditText>(R.id.selectedWidth)?.addTextChangedListener(
+        val selectedWidth: EditText = root.findViewById(R.id.selectedWidth);
+        val selectedHeight : EditText = root.findViewById(R.id.selectedHeight);
+
+        selectedWidth.addTextChangedListener(
             onTextChanged = { s, start, before, count ->
-                imageResolutionChangerViewModel.selectedWidth = s.toString()
+                if(selectedWidth.tag == null) {
+                    val width: String = s.toString()
+                    imageResolutionChangerViewModel.selectedWidth = width
+
+                    if (width.isEmpty()) {
+                        imageResolutionChangerViewModel.selectedWidth = ""
+                        imageResolutionChangerViewModel.selectedHeight = ""
+
+                        selectedHeight.tag = "auto"
+                        selectedHeight.setText(imageResolutionChangerViewModel.selectedHeight)
+                        selectedHeight.tag = null
+
+                    } else {
+                        try {
+                            val newResolution =
+                                imageResolutionChangerViewModel.getResolution(width = width)
+                            Log.i("Resolution Changer", "${newResolution!![1].toDouble().toInt()}")
+
+                            imageResolutionChangerViewModel.selectedHeight =
+                                if (newResolution == null) "" else newResolution[1].toDouble()
+                                    .toInt().toString()
+
+                            selectedHeight.tag = "auto"
+                            selectedHeight.setText(imageResolutionChangerViewModel.selectedHeight)
+                            selectedHeight.tag = null
+                        } catch (e: Exception) {
+                            Log.i("Resolution Changer", e.message.toString());
+
+                        }
+                    }
+
+
+                }
             }
+
         )
 
-        root.findViewById<EditText>(R.id.selectedHeight)?.addTextChangedListener(
+
+        selectedHeight.addTextChangedListener(
             onTextChanged = { s, start, before, count ->
-                imageResolutionChangerViewModel.selectedHeight = s.toString()
-            }
+
+                if (selectedHeight.tag == null) {
+                    val height : String = s.toString()
+                    imageResolutionChangerViewModel.selectedHeight = s.toString()
+
+                    if(height.isEmpty()) {
+                        imageResolutionChangerViewModel.selectedWidth = ""
+                        imageResolutionChangerViewModel.selectedHeight = ""
+
+                        selectedWidth.tag = "auto"
+                        selectedWidth.setText(imageResolutionChangerViewModel.selectedWidth)
+                        selectedWidth.tag = null
+
+                    } else {
+                        try {
+                            val newResolution = imageResolutionChangerViewModel.getResolution(height=height)
+
+                            imageResolutionChangerViewModel.selectedWidth = if(newResolution == null) "" else newResolution[0].toDouble().toInt().toString()
+
+                            selectedWidth.tag = "auto"
+                            selectedWidth.setText(imageResolutionChangerViewModel.selectedWidth)
+                            selectedWidth.tag = null
+                        } catch(e: Exception) {
+                            Log.i("Resolution Changer", e.message.toString());
+
+                        }
+                    }
+                }
+                }
+
         )
 
         root.findViewById<Button>(R.id.processImage)?.setOnClickListener {

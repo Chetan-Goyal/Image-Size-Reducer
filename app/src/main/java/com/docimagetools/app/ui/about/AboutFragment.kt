@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.docimagetools.app.databinding.FragmentAboutBinding
@@ -27,6 +28,8 @@ class AboutFragment : Fragment() {
 
         _binding = FragmentAboutBinding.inflate(inflater, container, false)
         val root: View = binding.root
+
+        (activity as AppCompatActivity).supportActionBar?.title = "About Us"
 
         val textView: TextView = binding.textSlideshow
         aboutViewModel.text.observe(viewLifecycleOwner) {

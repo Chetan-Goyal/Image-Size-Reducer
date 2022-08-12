@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -42,6 +43,8 @@ class ImageSizeReducerFragment : Fragment() {
             ViewModelProvider(this).get(ImageSizeReducerViewModel::class.java)
 
         val root: View = binding.root
+
+        (activity as AppCompatActivity).supportActionBar?.title = "Image Size Reducer"
 
         val button: Button = binding.selectImage
         button.setOnClickListener {

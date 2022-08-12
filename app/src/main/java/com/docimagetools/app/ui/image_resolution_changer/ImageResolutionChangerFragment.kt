@@ -12,6 +12,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -43,11 +44,14 @@ class ImageResolutionChangerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         val imageResolutionChangerViewModel =
             ViewModelProvider(this).get(ImageResolutionChangerViewModel::class.java)
 
         _binding = FragmentImageResolutionChangerBinding.inflate(inflater, container, false)
         val root: View = binding.root
+
+        (activity as AppCompatActivity).supportActionBar?.title = "Image Resolution Changer"
 
         val button: Button = binding.selectImage
         button.setOnClickListener {
@@ -85,17 +89,7 @@ class ImageResolutionChangerFragment : Fragment() {
 
                     } else {
                         try {
-                            val newResolution =
-                                imageResolutionChangerViewModel.getResolution(width = width)
-                            Log.i("Resolution Changer", "${newResolution!![1].toDouble().toInt()}")
-
-                            imageResolutionChangerViewModel.selectedHeight =
-                                if (newResolution == null) "" else newResolution[1].toDouble()
-                                    .toInt().toString()
-
-                            selectedHeight.tag = "auto"
-                            selectedHeight.setText(imageResolutionChangerViewModel.selectedHeight)
-                            selectedHeight.tag = null
+                            calculateNewHeight(width=width)
                         } catch (e: Exception) {
                             Log.i("Resolution Changer", e.message.toString());
 
@@ -126,13 +120,7 @@ class ImageResolutionChangerFragment : Fragment() {
 
                     } else {
                         try {
-                            val newResolution = imageResolutionChangerViewModel.getResolution(height=height)
-
-                            imageResolutionChangerViewModel.selectedWidth = if(newResolution == null) "" else newResolution[0].toDouble().toInt().toString()
-
-                            selectedWidth.tag = "auto"
-                            selectedWidth.setText(imageResolutionChangerViewModel.selectedWidth)
-                            selectedWidth.tag = null
+                            calculateNewWidth(height=height)
                         } catch(e: Exception) {
                             Log.i("Resolution Changer", e.message.toString());
 
@@ -176,6 +164,30 @@ class ImageResolutionChangerFragment : Fragment() {
         }
     }
 
+    private fun calculateNewWidth(height: String) {
+        val imageResolutionChangerViewModel = ViewModelProvider(this).get(ImageResolutionChangerViewModel::class.java)
+        val newResolution = imageResolutionChangerViewModel.getResolution(height=height)
+
+        imageResolutionChangerViewModel.selectedWidth = if(newResolution == null) "" else newResolution[0].toDouble().toInt().toString()
+
+        val selectedWidth: EditText = binding.root.findViewById(R.id.selectedWidth);
+        selectedWidth.tag = "auto"
+        selectedWidth.setText(imageResolutionChangerViewModel.selectedWidth)
+        selectedWidth.tag = null
+    }
+
+    private fun calculateNewHeight(width: String) {
+        val imageResolutionChangerViewModel = ViewModelProvider(this).get(ImageResolutionChangerViewModel::class.java)
+        val newResolution = imageResolutionChangerViewModel.getResolution(width=width)
+
+        imageResolutionChangerViewModel.selectedHeight = if(newResolution == null) "" else newResolution[1].toDouble().toInt().toString()
+
+        val selectedHeight: EditText = binding.root.findViewById(R.id.selectedHeight);
+        selectedHeight.tag = "auto"
+        selectedHeight.setText(imageResolutionChangerViewModel.selectedHeight)
+        selectedHeight.tag = null
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == pickImage && resultCode == Activity.RESULT_OK) {
@@ -194,6 +206,12 @@ class ImageResolutionChangerFragment : Fragment() {
                         ViewModelProvider(this).get(ImageResolutionChangerViewModel::class.java)
                     imageResolutionChangerViewModel.originalImage = actualImage
                     binding.selectedImageView.setImageURI(actualImage.toUri())
+
+                    if (imageResolutionChangerViewModel.selectedWidth != null && imageResolutionChangerViewModel.selectedWidth!!.isNotEmpty()) {
+                        calculateNewHeight(width = imageResolutionChangerViewModel.selectedWidth!!)
+                    } else if(imageResolutionChangerViewModel.selectedHeight != null && imageResolutionChangerViewModel.selectedHeight!!.isNotEmpty()) {
+                        calculateNewWidth(height = imageResolutionChangerViewModel.selectedHeight!!)
+                    }
                 }
             } catch (e: IOException) {
                 e.printStackTrace()

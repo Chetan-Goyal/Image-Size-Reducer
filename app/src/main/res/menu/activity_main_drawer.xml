@@ -14,7 +14,7 @@
             android:title="@string/menu_resolution_changer" />
         <item
             android:id="@+id/nav_about"
-            android:icon="@drawable/ic_menu_slideshow"
+            android:icon="@android:drawable/ic_menu_help"
             android:title="@string/menu_about" />
     </group>
 </menu>

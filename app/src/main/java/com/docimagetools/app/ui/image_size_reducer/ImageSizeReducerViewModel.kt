@@ -16,11 +16,14 @@ import java.net.URI
 
 class ImageSizeReducerViewModel : ViewModel() {
     var originalImage: File? = null;
+    var compressedImage: File? = null;
     var selectedSize: String? = null;
     var selectedUnit: Int? = null;
 
     var imageHeight: Int? = null;
     var imageWidth: Int? = null;
+
+
 
     protected val getOriginalSize: Long
         protected get() = originalImage!!.length()
@@ -75,7 +78,7 @@ class ImageSizeReducerViewModel : ViewModel() {
             Log.i("Compressor", "Original   File Resolution: ${getImageSize(file.toURI()).joinToString()}")
             Log.i("Compressor", "Compressed File Resolution: ${getImageSize(compressedImageFile.toURI()).joinToString()}")
 
-
+            compressedImage = compressedImageFile
             return compressedImageFile
         }
     }

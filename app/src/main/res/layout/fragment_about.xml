@@ -16,7 +16,7 @@
             android:layout_width="300sp"
             android:layout_height="300sp"
             android:layout_gravity="center_horizontal"
-            android:src="@drawable/image_size_reducer_logo"
+            android:src="@drawable/image_size_reducer"
             app:roundPercent="1"
             android:scaleType="fitXY" />
 

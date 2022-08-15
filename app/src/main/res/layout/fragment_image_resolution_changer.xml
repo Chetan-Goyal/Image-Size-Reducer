@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
         android:orientation="vertical">
 
         <ImageView
@@ -20,9 +21,9 @@
             android:id="@+id/selectImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/custom_button"
             android:hint="Select Image"
-            android:textColor="@color/white"
-            android:textColorHighlight="@color/white"
             android:textColorHint="@color/white" />
 
         <LinearLayout
@@ -77,25 +78,25 @@
             android:id="@+id/processImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/custom_button"
             android:hint="Resize Image"
-            android:textColor="@color/white"
-            android:textColorHighlight="@color/white"
             android:textColorHint="@color/white" />
 
         <ImageView
             android:id="@+id/resizedImage"
             android:layout_width="match_parent"
-            android:layout_height="200dp" />
+            android:layout_height="200dp"
+            android:layout_marginTop="20dp" />
 
         <Button
             android:id="@+id/saveImage"
-            android:layout_width="match_parent"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/custom_button"
             android:hint="Save Image"
-            android:textColor="@color/white"
-            android:textColorHighlight="@color/white"
             android:textColorHint="@color/white" />
 
     </LinearLayout>
-
-</RelativeLayout>
+</ScrollView>

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp" >
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
 
         <ImageView
             android:id="@+id/selectedImageView"
@@ -20,58 +20,61 @@
             android:id="@+id/selectImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/custom_button"
             android:hint="Select Image"
-            android:textColor="@color/white"
-            android:textColorHighlight="@color/white"
             android:textColorHint="@color/white" />
+
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+
             <EditText
                 android:id="@+id/editText"
                 android:layout_width="227dp"
                 android:layout_height="50dp"
-                android:importantForAutofill="no"
-                android:minHeight="48dp"
                 android:hint="Enter the output size"
+                android:importantForAutofill="no"
                 android:inputType="number"
-                android:maxLength="3"/>
+                android:maxLength="3"
+                android:minHeight="48dp" />
 
             <Spinner
                 android:id="@+id/sizeDropDown"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                 />
+                android:minWidth="100dp"
+                android:dropDownWidth="100dp"
+                android:textSize="20sp"
+                android:minHeight="48dp" />
         </LinearLayout>
 
         <Button
             android:id="@+id/processImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/custom_button"
             android:hint="Process Image"
-            android:textColor="@color/white"
-            android:textColorHighlight="@color/white"
             android:textColorHint="@color/white" />
 
         <ImageView
             android:id="@+id/compressedImage"
             android:layout_width="match_parent"
-            android:layout_height="200dp" />
+            android:layout_height="200dp"
+            android:layout_marginTop="20dp" />
 
         <Button
             android:id="@+id/saveImage"
-            android:layout_width="match_parent"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/custom_button"
             android:hint="Save Image"
-            android:textColor="@color/white"
-            android:textColorHighlight="@color/white"
             android:textColorHint="@color/white" />
 
 
     </LinearLayout>
-
-
-</RelativeLayout>
+</ScrollView>

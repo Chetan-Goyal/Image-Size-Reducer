@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -55,6 +56,9 @@ class ImageResolutionChangerFragment : Fragment() {
 
         _binding = FragmentImageResolutionChangerBinding.inflate(inflater, container, false)
         val root: View = binding.root
+
+        val saveButton: Button = binding.root.findViewById<Button>(R.id.saveImage)
+        saveButton.isVisible = false
 
         (activity as AppCompatActivity).supportActionBar?.title = "Image Resolution Changer"
 
@@ -184,6 +188,9 @@ class ImageResolutionChangerFragment : Fragment() {
                 imageResolutionChangerViewModel.originalImage!!
             )
             binding.resizedImage.setImageURI(compressedImage.toUri())
+
+            val saveButton: Button = binding.root.findViewById<Button>(R.id.saveImage)
+            saveButton.isVisible = true
         } catch (exception: RuntimeException) {
             Toast.makeText(this.context, exception.message, Toast.LENGTH_SHORT).show()
         }

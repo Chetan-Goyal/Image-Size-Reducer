@@ -14,6 +14,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -39,6 +40,9 @@ class ImageSizeReducerFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+
+
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -48,9 +52,12 @@ class ImageSizeReducerFragment : Fragment() {
         val imageSizeReducerViewModel =
             ViewModelProvider(this).get(ImageSizeReducerViewModel::class.java)
 
-        val root: View = binding.root
+//        val root: View = binding.root
 
         (activity as AppCompatActivity).supportActionBar?.title = "Image Size Reducer"
+
+        val saveButton: Button = binding.root.findViewById<Button>(R.id.saveImage)
+        saveButton.isVisible = false
 
         val button: Button = binding.selectImage
         button.setOnClickListener {
@@ -72,7 +79,7 @@ class ImageSizeReducerFragment : Fragment() {
         val imageSizeUnits = resources.getStringArray(R.array.imageSizeUnits)
 
         // access the spinner
-        val spinner = root.findViewById<Spinner>(R.id.sizeDropDown)
+        val spinner = binding.root.findViewById<Spinner>(R.id.sizeDropDown)
         spinner.setSelection(0, true)
         spinner.prompt = "KB"
 
@@ -98,25 +105,25 @@ class ImageSizeReducerFragment : Fragment() {
             }
         }
 
-        root.findViewById<EditText>(R.id.editText)?.addTextChangedListener(
+        binding.root.findViewById<EditText>(R.id.editText)?.addTextChangedListener(
             onTextChanged = { s, _, _, _ ->
                 imageSizeReducerViewModel.selectedSize = s.toString()
             }
         )
 
-        root.findViewById<Button>(R.id.processImage)?.setOnClickListener {
+        binding.root.findViewById<Button>(R.id.processImage)?.setOnClickListener {
             if (imageSizeReducerViewModel.originalImage == null) {
-                Toast.makeText(root.context, "Please select your Image first!", Toast.LENGTH_SHORT)
+                Toast.makeText(binding.root.context, "Please select your Image first!", Toast.LENGTH_SHORT)
                     .show()
             } else if (imageSizeReducerViewModel.selectedSize == null) {
                 Toast.makeText(
-                    root.context,
+                    binding.root.context,
                     "Please select size for output image!",
                     Toast.LENGTH_SHORT
                 ).show()
             } else if (imageSizeReducerViewModel.selectedUnit == null) {
                 Toast.makeText(
-                    root.context,
+                    binding.root.context,
                     "Please select unit for output file!",
                     Toast.LENGTH_SHORT
                 ).show()
@@ -130,13 +137,13 @@ class ImageSizeReducerFragment : Fragment() {
             }
         }
 
-        root.findViewById<Button>(R.id.saveImage)?.setOnClickListener {
+        saveButton.setOnClickListener {
 
             if (imageSizeReducerViewModel.compressedImage != null) {
                 showSharingDialogAsKotlinWithURL(imageSizeReducerViewModel.compressedImage!!)
             } else {
                 Toast.makeText(
-                    root.context,
+                    binding.root.context,
                     "Please compress your image first!",
                     Toast.LENGTH_SHORT
                 )
@@ -145,7 +152,7 @@ class ImageSizeReducerFragment : Fragment() {
 
         }
 
-        return root
+        return binding.root
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -207,6 +214,8 @@ class ImageSizeReducerFragment : Fragment() {
                 imageSizeReducerViewModel.originalImage!!
             )
             binding.compressedImage.setImageURI(compressedImage.toUri())
+            val saveButton: Button = binding.root.findViewById<Button>(R.id.saveImage)
+            saveButton.isVisible = true
         } catch (exception: RuntimeException) {
             Toast.makeText(this.context, exception.message, Toast.LENGTH_SHORT).show()
         }

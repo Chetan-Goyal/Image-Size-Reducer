@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingLeft="16dp"
-    android:paddingRight="16dp" >
+    android:paddingRight="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -41,11 +41,11 @@
                 android:id="@+id/selectedWidth"
                 android:layout_width="227dp"
                 android:layout_height="50dp"
-                android:importantForAutofill="no"
-                android:minHeight="48dp"
                 android:hint="Width"
+                android:importantForAutofill="no"
                 android:inputType="number"
-                android:maxLength="3"/>
+                android:maxLength="3"
+                android:minHeight="48dp" />
 
         </LinearLayout>
 
@@ -65,11 +65,11 @@
                 android:id="@+id/selectedHeight"
                 android:layout_width="227dp"
                 android:layout_height="50dp"
-                android:importantForAutofill="no"
-                android:minHeight="48dp"
                 android:hint="Height"
+                android:importantForAutofill="no"
                 android:inputType="number"
-                android:maxLength="3"/>
+                android:maxLength="3"
+                android:minHeight="48dp" />
 
         </LinearLayout>
 
@@ -87,8 +87,15 @@
             android:layout_width="match_parent"
             android:layout_height="200dp" />
 
+        <Button
+            android:id="@+id/saveImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Save Image"
+            android:textColor="@color/white"
+            android:textColorHighlight="@color/white"
+            android:textColorHint="@color/white" />
 
     </LinearLayout>
-
 
 </RelativeLayout>

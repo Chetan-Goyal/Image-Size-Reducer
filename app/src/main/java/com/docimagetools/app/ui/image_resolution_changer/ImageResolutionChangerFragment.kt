@@ -2,6 +2,7 @@ package com.docimagetools.app.ui.image_resolution_changer
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -13,6 +14,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -23,12 +25,14 @@ import com.docimagetools.app.ui.image_size_reducer.ImageSizeReducerViewModel
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.IOException
+import java.io.OutputStream
 import java.lang.Exception
 
 class ImageResolutionChangerFragment : Fragment() {
 
     private var _binding: FragmentImageResolutionChangerBinding? = null
     private val pickImage = 100
+    private val saveCode = 200
 
     private val job = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + job)
@@ -71,11 +75,11 @@ class ImageResolutionChangerFragment : Fragment() {
         }
 
         val selectedWidth: EditText = root.findViewById(R.id.selectedWidth);
-        val selectedHeight : EditText = root.findViewById(R.id.selectedHeight);
+        val selectedHeight: EditText = root.findViewById(R.id.selectedHeight);
 
         selectedWidth.addTextChangedListener(
             onTextChanged = { s, start, before, count ->
-                if(selectedWidth.tag == null) {
+                if (selectedWidth.tag == null) {
                     val width: String = s.toString()
                     imageResolutionChangerViewModel.selectedWidth = width
 
@@ -89,7 +93,7 @@ class ImageResolutionChangerFragment : Fragment() {
 
                     } else {
                         try {
-                            calculateNewHeight(width=width)
+                            calculateNewHeight(width = width)
                         } catch (e: Exception) {
                             Log.i("Resolution Changer", e.message.toString());
 
@@ -106,10 +110,10 @@ class ImageResolutionChangerFragment : Fragment() {
             onTextChanged = { s, start, before, count ->
 
                 if (selectedHeight.tag == null) {
-                    val height : String = s.toString()
+                    val height: String = s.toString()
                     imageResolutionChangerViewModel.selectedHeight = s.toString()
 
-                    if(height.isEmpty()) {
+                    if (height.isEmpty()) {
                         imageResolutionChangerViewModel.selectedWidth = ""
                         imageResolutionChangerViewModel.selectedHeight = ""
 
@@ -119,24 +123,33 @@ class ImageResolutionChangerFragment : Fragment() {
 
                     } else {
                         try {
-                            calculateNewWidth(height=height)
-                        } catch(e: Exception) {
+                            calculateNewWidth(height = height)
+                        } catch (e: Exception) {
                             Log.i("Resolution Changer", e.message.toString());
 
                         }
                     }
                 }
-                }
+            }
 
         )
 
         root.findViewById<Button>(R.id.processImage)?.setOnClickListener {
-            if (imageResolutionChangerViewModel.originalImage == null ) {
-                Toast.makeText(root.context, "Please select your Image first!", Toast.LENGTH_SHORT).show()
-            } else if(imageResolutionChangerViewModel.selectedWidth == null) {
-                Toast.makeText(root.context, "Please select width for output image!", Toast.LENGTH_SHORT).show()
-            } else if(imageResolutionChangerViewModel.selectedHeight == null) {
-                Toast.makeText(root.context, "Please select height for output file!", Toast.LENGTH_SHORT).show()
+            if (imageResolutionChangerViewModel.originalImage == null) {
+                Toast.makeText(root.context, "Please select your Image first!", Toast.LENGTH_SHORT)
+                    .show()
+            } else if (imageResolutionChangerViewModel.selectedWidth == null) {
+                Toast.makeText(
+                    root.context,
+                    "Please select width for output image!",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else if (imageResolutionChangerViewModel.selectedHeight == null) {
+                Toast.makeText(
+                    root.context,
+                    "Please select height for output file!",
+                    Toast.LENGTH_SHORT
+                ).show()
             } else {
                 uiScope.launch(Dispatchers.IO) {
                     //asyncOperation
@@ -147,6 +160,15 @@ class ImageResolutionChangerFragment : Fragment() {
             }
         }
 
+        root.findViewById<Button>(R.id.saveImage)?.setOnClickListener {
+
+            if (imageResolutionChangerViewModel.resizedImage != null) {
+                showSharingDialogAsKotlinWithURL(imageResolutionChangerViewModel.resizedImage!!)
+            } else {
+                Toast.makeText(root.context, "Please resize your image first!", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
         return root
     }
 
@@ -156,7 +178,10 @@ class ImageResolutionChangerFragment : Fragment() {
 
         try {
             binding.resizedImage.setImageURI(null)
-            val compressedImage = imageResolutionChangerViewModel.resize(binding.root.context, imageResolutionChangerViewModel.originalImage!!)
+            val compressedImage = imageResolutionChangerViewModel.resize(
+                binding.root.context,
+                imageResolutionChangerViewModel.originalImage!!
+            )
             binding.resizedImage.setImageURI(compressedImage.toUri())
         } catch (exception: RuntimeException) {
             Toast.makeText(this.context, exception.message, Toast.LENGTH_SHORT).show()
@@ -164,10 +189,12 @@ class ImageResolutionChangerFragment : Fragment() {
     }
 
     private fun calculateNewWidth(height: String) {
-        val imageResolutionChangerViewModel = ViewModelProvider(this).get(ImageResolutionChangerViewModel::class.java)
-        val newResolution = imageResolutionChangerViewModel.getResolution(height=height)
+        val imageResolutionChangerViewModel =
+            ViewModelProvider(this).get(ImageResolutionChangerViewModel::class.java)
+        val newResolution = imageResolutionChangerViewModel.getResolution(height = height)
 
-        imageResolutionChangerViewModel.selectedWidth = if(newResolution == null) "" else newResolution[0].toDouble().toInt().toString()
+        imageResolutionChangerViewModel.selectedWidth =
+            if (newResolution == null) "" else newResolution[0].toDouble().toInt().toString()
 
         val selectedWidth: EditText = binding.root.findViewById(R.id.selectedWidth);
         selectedWidth.tag = "auto"
@@ -176,10 +203,12 @@ class ImageResolutionChangerFragment : Fragment() {
     }
 
     private fun calculateNewHeight(width: String) {
-        val imageResolutionChangerViewModel = ViewModelProvider(this).get(ImageResolutionChangerViewModel::class.java)
-        val newResolution = imageResolutionChangerViewModel.getResolution(width=width)
+        val imageResolutionChangerViewModel =
+            ViewModelProvider(this).get(ImageResolutionChangerViewModel::class.java)
+        val newResolution = imageResolutionChangerViewModel.getResolution(width = width)
 
-        imageResolutionChangerViewModel.selectedHeight = if(newResolution == null) "" else newResolution[1].toDouble().toInt().toString()
+        imageResolutionChangerViewModel.selectedHeight =
+            if (newResolution == null) "" else newResolution[1].toDouble().toInt().toString()
 
         val selectedHeight: EditText = binding.root.findViewById(R.id.selectedHeight);
         selectedHeight.tag = "auto"
@@ -187,8 +216,28 @@ class ImageResolutionChangerFragment : Fragment() {
         selectedHeight.tag = null
     }
 
+    private fun showSharingDialogAsKotlinWithURL(file: File) {
+
+        val imageUri = FileProvider.getUriForFile(
+            binding.root.context,
+            "com.docimagetools.app.provider",
+            file
+        )
+        Log.i("Size Reducer", file.absolutePath)
+        Log.i("Size Reducer", imageUri.toString())
+        val sendIntent = Intent()
+        sendIntent.action = Intent.ACTION_CREATE_DOCUMENT
+        sendIntent.type = "image/*"
+        sendIntent.putExtra(Intent.EXTRA_STREAM, imageUri)
+        sendIntent.putExtra(Intent.EXTRA_TITLE, "compressed.jpg")
+        startActivityForResult(sendIntent, saveCode)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
+        val imageResolutionChangerViewModel =
+            ViewModelProvider(this).get(ImageResolutionChangerViewModel::class.java)
         if (requestCode == pickImage && resultCode == Activity.RESULT_OK) {
             if (data == null) {
                 Log.i("", "Data is null")
@@ -201,19 +250,44 @@ class ImageResolutionChangerFragment : Fragment() {
                 if (actualImage == null) {
                     Log.i("", "Image is null")
                 } else {
-                    val imageResolutionChangerViewModel =
-                        ViewModelProvider(this).get(ImageResolutionChangerViewModel::class.java)
                     imageResolutionChangerViewModel.originalImage = actualImage
                     binding.selectedImageView.setImageURI(actualImage.toUri())
 
                     if (imageResolutionChangerViewModel.selectedWidth != null && imageResolutionChangerViewModel.selectedWidth!!.isNotEmpty()) {
                         calculateNewHeight(width = imageResolutionChangerViewModel.selectedWidth!!)
-                    } else if(imageResolutionChangerViewModel.selectedHeight != null && imageResolutionChangerViewModel.selectedHeight!!.isNotEmpty()) {
+                    } else if (imageResolutionChangerViewModel.selectedHeight != null && imageResolutionChangerViewModel.selectedHeight!!.isNotEmpty()) {
                         calculateNewWidth(height = imageResolutionChangerViewModel.selectedHeight!!)
                     }
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
+            }
+        } else if (requestCode == saveCode && resultCode == Activity.RESULT_OK) {
+            if (data == null || data.data == null) {
+                Log.i("", "Data is null")
+                return
+            }
+
+            val uri: Uri? = data.data
+
+            if (uri != null) {
+                try {
+                    val output: OutputStream? =
+                        binding.root.context.contentResolver.openOutputStream(uri)
+
+                    if (output != null) {
+                        output.write(imageResolutionChangerViewModel.resizedImage!!.readBytes())
+                        output.flush()
+                        output.close()
+                    } else {
+                        Log.i("", "Output Stream is null")
+                    }
+
+                } catch (e: IOException) {
+                    Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Log.i("", "File URI is null")
             }
         }
     }

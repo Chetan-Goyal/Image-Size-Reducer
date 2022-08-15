@@ -13,7 +13,6 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
-import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -24,7 +23,6 @@ import kotlinx.coroutines.*
 import java.io.File
 import java.io.IOException
 import java.io.OutputStream
-import java.net.URI
 
 
 class ImageSizeReducerFragment : Fragment() {
@@ -61,7 +59,7 @@ class ImageSizeReducerFragment : Fragment() {
 
             val takePhotoIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
 
-            val pickTitle = "Select or take a new Picture" // Or get from strings.xml
+            val pickTitle = "Select or take a new Picture"
 
             val chooserIntent = Intent.createChooser(pickIntent, pickTitle)
             chooserIntent.putExtra(
@@ -74,11 +72,11 @@ class ImageSizeReducerFragment : Fragment() {
 
         // access the spinner
         val spinner = root.findViewById<Spinner>(R.id.sizeDropDown)
-        spinner.setSelection(0, true);
-        spinner.setPrompt("KB")
+        spinner.setSelection(0, true)
+        spinner.prompt = "KB"
 
         if (spinner != null) {
-            val adapter = ArrayAdapter<String>(
+            val adapter = ArrayAdapter(
                 this.requireContext(),
                 android.R.layout.simple_spinner_item, imageSizeUnits
             )
@@ -90,7 +88,7 @@ class ImageSizeReducerFragment : Fragment() {
                     parent: AdapterView<*>?,
                     view: View, position: Int, id: Long
                 ) {
-                    imageSizeReducerViewModel.selectedUnit = position;
+                    imageSizeReducerViewModel.selectedUnit = position
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>) {
@@ -100,18 +98,27 @@ class ImageSizeReducerFragment : Fragment() {
         }
 
         root.findViewById<EditText>(R.id.editText)?.addTextChangedListener(
-            onTextChanged = { s, start, before, count ->
+            onTextChanged = { s, _, _, _ ->
                 imageSizeReducerViewModel.selectedSize = s.toString()
             }
         )
 
         root.findViewById<Button>(R.id.processImage)?.setOnClickListener {
-            if (imageSizeReducerViewModel.originalImage == null ) {
-                Toast.makeText(root.context, "Please select your Image first!", Toast.LENGTH_SHORT).show()
-            } else if(imageSizeReducerViewModel.selectedSize == null) {
-                 Toast.makeText(root.context, "Please select size for output image!", Toast.LENGTH_SHORT).show()
-            } else if(imageSizeReducerViewModel.selectedUnit == null) {
-                Toast.makeText(root.context, "Please select unit for output file!", Toast.LENGTH_SHORT).show()
+            if (imageSizeReducerViewModel.originalImage == null) {
+                Toast.makeText(root.context, "Please select your Image first!", Toast.LENGTH_SHORT)
+                    .show()
+            } else if (imageSizeReducerViewModel.selectedSize == null) {
+                Toast.makeText(
+                    root.context,
+                    "Please select size for output image!",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else if (imageSizeReducerViewModel.selectedUnit == null) {
+                Toast.makeText(
+                    root.context,
+                    "Please select unit for output file!",
+                    Toast.LENGTH_SHORT
+                ).show()
             } else {
                 uiScope.launch(Dispatchers.IO) {
                     //asyncOperation
@@ -122,13 +129,19 @@ class ImageSizeReducerFragment : Fragment() {
             }
         }
 
-        root.findViewById<Button>(R.id.shareImage)?.setOnClickListener {
-            showSharingDialogAsKotlinWithURL("Sample text", imageSizeReducerViewModel.compressedImage!!)
-        //            val shareIntent = Intent()
-//            shareIntent.action = Intent.EXTRA_STREAM
-////            shareIntent.type="text/plain"
-//            shareIntent.putExtra(Intent.EXTRA_STREAM, imageSizeReducerViewModel.compressedImage);
-//            startActivity(Intent.createChooser(shareIntent,"Send to "))
+        root.findViewById<Button>(R.id.saveImage)?.setOnClickListener {
+
+            if (imageSizeReducerViewModel.compressedImage != null) {
+                showSharingDialogAsKotlinWithURL(imageSizeReducerViewModel.compressedImage!!)
+            } else {
+                Toast.makeText(
+                    root.context,
+                    "Please compress your image first!",
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            }
+
         }
 
         return root
@@ -139,45 +152,46 @@ class ImageSizeReducerFragment : Fragment() {
         val imageSizeReducerViewModel =
             ViewModelProvider(this).get(ImageSizeReducerViewModel::class.java)
         if (requestCode == pickImage && resultCode == RESULT_OK) {
-            if (data == null) {
+            if (data == null || data.data == null) {
                 Log.i("", "Data is null")
                 return
             }
             try {
-                val actualImage: File? = data.data?.let {
+                val actualImage: File = data.data!!.let {
                     FileUtil.from(this.requireContext(), it)
                 }
-                if (actualImage == null) {
-                    Log.i("", "Image is null")
-                } else {
-                    imageSizeReducerViewModel.originalImage = actualImage
-                    binding.selectedImageView.setImageURI(actualImage.toUri())
-                }
+                imageSizeReducerViewModel.originalImage = actualImage
+                binding.selectedImageView.setImageURI(actualImage.toUri())
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-        } else if(requestCode == saveCode && resultCode == RESULT_OK) {
-            val uri: Uri? = data?.data
+        } else if (requestCode == saveCode && resultCode == RESULT_OK) {
+            if (data == null || data.data == null) {
+                Log.i("", "Data is null")
+                return
+            }
+
+            val uri: Uri? = data.data
 
             if (uri != null) {
                 try {
-                    val output: OutputStream? = binding.root.context.contentResolver.openOutputStream(uri)
+                    val output: OutputStream? =
+                        binding.root.context.contentResolver.openOutputStream(uri)
 
                     if (output != null) {
-                        output.write(imageSizeReducerViewModel.compressedImage!!.readBytes());
-                        output.flush();
-                        output.close();
+                        output.write(imageSizeReducerViewModel.compressedImage!!.readBytes())
+                        output.flush()
+                        output.close()
+                    } else {
+                        Log.i("", "Output Stream is null")
                     }
 
+                } catch (e: IOException) {
+                    Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
                 }
-                catch(e: IOException) {
-                    Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show();
-                }
+            } else {
+                Log.i("", "File URI is null")
             }
-
-            //just as an example, I am writing a String to the Uri I received from the user:
-
-
         }
     }
 
@@ -187,52 +201,31 @@ class ImageSizeReducerFragment : Fragment() {
 
         try {
             binding.compressedImage.setImageURI(null)
-            val compressedImage = imageSizeReducerViewModel.compress(binding.root.context, imageSizeReducerViewModel.originalImage!!)
+            val compressedImage = imageSizeReducerViewModel.compress(
+                binding.root.context,
+                imageSizeReducerViewModel.originalImage!!
+            )
             binding.compressedImage.setImageURI(compressedImage.toUri())
         } catch (exception: RuntimeException) {
             Toast.makeText(this.context, exception.message, Toast.LENGTH_SHORT).show()
         }
     }
 
-    fun showSharingDialogAsKotlinWithURL(text: String, file: File) {
-// ! Approach 1
-//        val intent = Intent()
-//        intent.action = Intent.ACTION_SEND
-//        intent.type = "text/plain"
-//        intent.putExtra(Intent.EXTRA_TEXT, "$text: $url")
-//        startActivity(Intent.createChooser(intent, "Share with:"))
-
-// ! Approach 2
-//        val intent = Intent(Intent.ACTION_SEND).setType("image/*")
-//        intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file))
-//
-//        startActivity(intent)
-
-// ! Approach 3
-//        val sendIntent = Intent()
-//        sendIntent.action = Intent.ACTION_MEDIA_SHARED
-//        sendIntent.data = Uri.fromFile(file)
-//        sendIntent.type = "image/jpeg"
-//        startActivity(sendIntent)
+    private fun showSharingDialogAsKotlinWithURL(file: File) {
 
         val imageUri = FileProvider.getUriForFile(
             binding.root.context,
-            "com.docimagetools.app.provider",  //(use your app signature + ".provider" )
+            "com.docimagetools.app.provider",
             file
         )
         Log.i("Size Reducer", file.absolutePath)
         Log.i("Size Reducer", imageUri.toString())
         val sendIntent = Intent()
         sendIntent.action = Intent.ACTION_CREATE_DOCUMENT
-//        sendIntent.data = imageUri
         sendIntent.type = "image/*"
         sendIntent.putExtra(Intent.EXTRA_STREAM, imageUri)
-        sendIntent.putExtra(Intent.EXTRA_TITLE, "compressed.jpg"); //not needed, but maybe usefull
+        sendIntent.putExtra(Intent.EXTRA_TITLE, "compressed.jpg")
         startActivityForResult(sendIntent, saveCode)
-
-//        val chooserIntent = Intent.createChooser(sendIntent, null)
-//        startActivityForResult(chooserIntent, saveCode)
-
     }
 
 
@@ -244,6 +237,5 @@ class ImageSizeReducerFragment : Fragment() {
     override fun onDestroy() {
         job.cancel()
         super.onDestroy()
-
     }
 }

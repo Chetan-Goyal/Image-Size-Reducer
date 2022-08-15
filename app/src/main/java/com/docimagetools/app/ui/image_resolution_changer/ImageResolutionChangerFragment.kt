@@ -31,6 +31,7 @@ import java.lang.Exception
 class ImageResolutionChangerFragment : Fragment() {
 
     private var _binding: FragmentImageResolutionChangerBinding? = null
+    private val TAG = "Resolution Changer"
     private val pickImage = 100
     private val saveCode = 200
 
@@ -95,7 +96,7 @@ class ImageResolutionChangerFragment : Fragment() {
                         try {
                             calculateNewHeight(width = width)
                         } catch (e: Exception) {
-                            Log.i("Resolution Changer", e.message.toString());
+                            Log.i(TAG, e.message.toString());
 
                         }
                     }
@@ -125,7 +126,7 @@ class ImageResolutionChangerFragment : Fragment() {
                         try {
                             calculateNewWidth(height = height)
                         } catch (e: Exception) {
-                            Log.i("Resolution Changer", e.message.toString());
+                            Log.i(TAG, e.message.toString());
 
                         }
                     }
@@ -223,13 +224,13 @@ class ImageResolutionChangerFragment : Fragment() {
             "com.docimagetools.app.provider",
             file
         )
-        Log.i("Size Reducer", file.absolutePath)
-        Log.i("Size Reducer", imageUri.toString())
+        Log.i(TAG, file.absolutePath)
+        Log.i(TAG, imageUri.toString())
         val sendIntent = Intent()
         sendIntent.action = Intent.ACTION_CREATE_DOCUMENT
         sendIntent.type = "image/*"
         sendIntent.putExtra(Intent.EXTRA_STREAM, imageUri)
-        sendIntent.putExtra(Intent.EXTRA_TITLE, "compressed.jpg")
+        sendIntent.putExtra(Intent.EXTRA_TITLE, "resized_image.jpg")
         startActivityForResult(sendIntent, saveCode)
     }
 
@@ -240,7 +241,7 @@ class ImageResolutionChangerFragment : Fragment() {
             ViewModelProvider(this).get(ImageResolutionChangerViewModel::class.java)
         if (requestCode == pickImage && resultCode == Activity.RESULT_OK) {
             if (data == null) {
-                Log.i("", "Data is null")
+                Log.i(TAG, "Data is null")
                 return
             }
             try {
@@ -248,7 +249,7 @@ class ImageResolutionChangerFragment : Fragment() {
                     FileUtil.from(this.requireContext(), it)
                 }
                 if (actualImage == null) {
-                    Log.i("", "Image is null")
+                    Log.i(TAG, "Image is null")
                 } else {
                     imageResolutionChangerViewModel.originalImage = actualImage
                     binding.selectedImageView.setImageURI(actualImage.toUri())
@@ -264,7 +265,7 @@ class ImageResolutionChangerFragment : Fragment() {
             }
         } else if (requestCode == saveCode && resultCode == Activity.RESULT_OK) {
             if (data == null || data.data == null) {
-                Log.i("", "Data is null")
+                Log.i(TAG, "Data is null")
                 return
             }
 
@@ -280,14 +281,14 @@ class ImageResolutionChangerFragment : Fragment() {
                         output.flush()
                         output.close()
                     } else {
-                        Log.i("", "Output Stream is null")
+                        Log.i(TAG, "Output Stream is null")
                     }
 
                 } catch (e: IOException) {
                     Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
                 }
             } else {
-                Log.i("", "File URI is null")
+                Log.i(TAG, "File URI is null")
             }
         }
     }

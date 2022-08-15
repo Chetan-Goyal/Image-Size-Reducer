@@ -28,6 +28,7 @@ import java.io.OutputStream
 class ImageSizeReducerFragment : Fragment() {
 
     private var _binding: FragmentImageSizeReducerBinding? = null
+    private val TAG = "Size Reducer"
     private val pickImage = 100
     private val saveCode = 200
 
@@ -153,7 +154,7 @@ class ImageSizeReducerFragment : Fragment() {
             ViewModelProvider(this).get(ImageSizeReducerViewModel::class.java)
         if (requestCode == pickImage && resultCode == RESULT_OK) {
             if (data == null || data.data == null) {
-                Log.i("", "Data is null")
+                Log.i(TAG, "Data is null")
                 return
             }
             try {
@@ -167,7 +168,7 @@ class ImageSizeReducerFragment : Fragment() {
             }
         } else if (requestCode == saveCode && resultCode == RESULT_OK) {
             if (data == null || data.data == null) {
-                Log.i("", "Data is null")
+                Log.i(TAG, "Data is null")
                 return
             }
 
@@ -183,14 +184,14 @@ class ImageSizeReducerFragment : Fragment() {
                         output.flush()
                         output.close()
                     } else {
-                        Log.i("", "Output Stream is null")
+                        Log.i(TAG, "Output Stream is null")
                     }
 
                 } catch (e: IOException) {
                     Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
                 }
             } else {
-                Log.i("", "File URI is null")
+                Log.i(TAG, "File URI is null")
             }
         }
     }
@@ -218,8 +219,8 @@ class ImageSizeReducerFragment : Fragment() {
             "com.docimagetools.app.provider",
             file
         )
-        Log.i("Size Reducer", file.absolutePath)
-        Log.i("Size Reducer", imageUri.toString())
+        Log.i(TAG, file.absolutePath)
+        Log.i(TAG, imageUri.toString())
         val sendIntent = Intent()
         sendIntent.action = Intent.ACTION_CREATE_DOCUMENT
         sendIntent.type = "image/*"

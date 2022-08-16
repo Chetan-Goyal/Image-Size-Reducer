@@ -1,17 +1,18 @@
-package com.docimagetools.app.ui.gallery
+package com.docimagetools.app.ui.about
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.docimagetools.app.databinding.FragmentGalleryBinding
+import com.docimagetools.app.databinding.FragmentAboutBinding
 
-class GalleryFragment : Fragment() {
+class AboutFragment : Fragment() {
 
-    private var _binding: FragmentGalleryBinding? = null
+    private var _binding: FragmentAboutBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -22,14 +23,16 @@ class GalleryFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val galleryViewModel =
-            ViewModelProvider(this).get(GalleryViewModel::class.java)
+        val aboutViewModel =
+            ViewModelProvider(this).get(AboutViewModel::class.java)
 
-        _binding = FragmentGalleryBinding.inflate(inflater, container, false)
+        _binding = FragmentAboutBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textGallery
-        galleryViewModel.text.observe(viewLifecycleOwner) {
+        (activity as AppCompatActivity).supportActionBar?.title = "About Us"
+
+        val textView: TextView = binding.textSlideshow
+        aboutViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
         return root

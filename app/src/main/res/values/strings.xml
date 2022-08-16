@@ -10,4 +10,9 @@
     <string name="menu_size_reducer">Image Size Reducer</string>
     <string name="menu_resolution_changer">Image Resolution Changer</string>
     <string name="menu_about">About</string>
+    
+    <string-array name="imageSizeUnits">
+        <item>KB</item>
+        <item>MB</item>
+    </string-array>
 </resources>
